@@ -1,0 +1,948 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#090710">
+  <meta name="description" content="Oxlan AI — your AI assistant for coding, learning, game development, and creativity.">
+  <title>Oxlan AI</title>
+
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #090710;
+      --sidebar: #0e0b18;
+      --panel: #151020;
+      --border: #2b223b;
+      --purple: #a855f7;
+      --light-purple: #c084fc;
+      --text: #f5f3ff;
+      --muted: #a39ab8;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Inter, system-ui, -apple-system, sans-serif;
+    }
+
+    button, textarea {
+      font: inherit;
+    }
+
+    button {
+      cursor: pointer;
+    }
+
+    .app {
+      min-height: 100vh;
+      display: flex;
+    }
+
+    .sidebar {
+      width: 250px;
+      flex-shrink: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+      padding: 22px 16px;
+      background: var(--sidebar);
+      border-right: 1px solid var(--border);
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .logo {
+      width: 42px;
+      height: 42px;
+      display: grid;
+      place-items: center;
+      border-radius: 13px;
+      background: linear-gradient(135deg, #7c3aed, #c084fc);
+      font-size: 22px;
+      font-weight: 900;
+    }
+
+    .brand-name {
+      font-size: 19px;
+      font-weight: 800;
+    }
+
+    .brand-subtitle {
+      margin-top: 3px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .new-chat {
+      padding: 13px;
+      border: 1px solid #7040a6;
+      border-radius: 12px;
+      background: #8435c9;
+      color: white;
+      font-weight: 700;
+    }
+
+    .new-chat:hover {
+      background: #9848df;
+    }
+
+    .section-title {
+      margin-bottom: 10px;
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 1.4px;
+      text-transform: uppercase;
+    }
+
+    .history {
+      display: grid;
+      gap: 6px;
+    }
+
+    .history button {
+      overflow: hidden;
+      padding: 11px;
+      border: 1px solid transparent;
+      border-radius: 10px;
+      background: transparent;
+      color: #d5cde5;
+      text-align: left;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .history button:hover,
+    .history button.active {
+      border-color: var(--border);
+      background: #1b1729;
+    }
+
+    .sidebar-footer {
+      margin-top: auto;
+      padding: 14px;
+      border: 1px solid var(--border);
+      border-radius: 13px;
+      background: var(--panel);
+    }
+
+    .sidebar-footer p {
+      margin-bottom: 0;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.6;
+    }
+
+    .main {
+      display: flex;
+      flex: 1;
+      flex-direction: column;
+      min-width: 0;
+      min-height: 100vh;
+    }
+
+    header {
+      min-height: 74px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 16px 26px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .header-title {
+      font-weight: 750;
+    }
+
+    .header-subtitle {
+      margin-top: 5px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .badge {
+      padding: 8px 12px;
+      border: 1px solid var(--border);
+      border-radius: 30px;
+      color: #dfc9ff;
+      font-size: 12px;
+    }
+
+    .mobile-brand {
+      display: none;
+      align-items: center;
+      gap: 9px;
+      font-weight: 800;
+    }
+
+    .mobile-brand .logo {
+      width: 36px;
+      height: 36px;
+      font-size: 18px;
+    }
+
+    .chat-area {
+      width: min(850px, 100%);
+      flex: 1;
+      margin: 0 auto;
+      padding: 30px 24px;
+    }
+
+    .welcome {
+      margin: 65px 0 45px;
+      text-align: center;
+    }
+
+    .welcome[hidden] {
+      display: none;
+    }
+
+    .welcome-icon {
+      width: 76px;
+      height: 76px;
+      display: grid;
+      place-items: center;
+      margin: 0 auto 23px;
+      border: 1px solid #8150b6;
+      border-radius: 24px;
+      background: linear-gradient(145deg, #28143f, #120d20);
+      font-size: 34px;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(30px, 5vw, 44px);
+      letter-spacing: -1.5px;
+    }
+
+    h1 span {
+      color: var(--light-purple);
+    }
+
+    .welcome > p {
+      max-width: 470px;
+      margin: 16px auto 28px;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.8;
+    }
+
+    .suggestions {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+      max-width: 600px;
+      margin: auto;
+    }
+
+    .suggestion {
+      padding: 16px;
+      border: 1px solid var(--border);
+      border-radius: 13px;
+      background: var(--panel);
+      color: var(--text);
+      text-align: left;
+    }
+
+    .suggestion:hover {
+      border-color: #8650ba;
+      background: #1b1729;
+    }
+
+    .suggestion strong,
+    .suggestion span {
+      display: block;
+    }
+
+    .suggestion strong {
+      margin-bottom: 7px;
+      font-size: 14px;
+    }
+
+    .suggestion span {
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.6;
+    }
+
+    .messages {
+      display: grid;
+      gap: 25px;
+    }
+
+    .message {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+    }
+
+    .avatar {
+      width: 36px;
+      height: 36px;
+      flex-shrink: 0;
+      display: grid;
+      place-items: center;
+      border: 1px solid var(--border);
+      border-radius: 11px;
+      background: #1b1729;
+      font-weight: 800;
+    }
+
+    .message.assistant .avatar {
+      border-color: #674087;
+      background: #351c4e;
+    }
+
+    .message-body {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .message-name {
+      margin: 3px 0 8px;
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+    .message-text {
+      overflow-wrap: anywhere;
+      color: #e3ddec;
+      font-size: 14px;
+      line-height: 1.85;
+      white-space: pre-wrap;
+    }
+
+    .message-text pre {
+      max-width: 100%;
+      overflow-x: auto;
+      padding: 14px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: #08070d;
+      white-space: pre;
+    }
+
+    .message-text code {
+      font-family: ui-monospace, monospace;
+    }
+
+    .message-text a {
+      color: var(--light-purple);
+    }
+
+    .typing {
+      display: flex;
+      gap: 5px;
+      padding: 8px 0;
+    }
+
+    .typing span {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--light-purple);
+      animation: pulse 1s infinite alternate;
+    }
+
+    .typing span:nth-child(2) {
+      animation-delay: .2s;
+    }
+
+    .typing span:nth-child(3) {
+      animation-delay: .4s;
+    }
+
+    @keyframes pulse {
+      from { opacity: .35; transform: translateY(0); }
+      to { opacity: 1; transform: translateY(-4px); }
+    }
+
+    .composer-wrap {
+      position: sticky;
+      bottom: 0;
+      padding: 12px 24px 18px;
+      background: linear-gradient(transparent, var(--bg) 18%);
+    }
+
+    .composer {
+      width: min(810px, 100%);
+      margin: auto;
+      padding: 12px;
+      border: 1px solid #39304b;
+      border-radius: 17px;
+      background: #141020;
+    }
+
+    .composer:focus-within {
+      border-color: #8550b8;
+    }
+
+    textarea {
+      display: block;
+      width: 100%;
+      min-height: 48px;
+      max-height: 180px;
+      padding: 10px;
+      resize: none;
+      border: 0;
+      outline: none;
+      background: transparent;
+      color: var(--text);
+      line-height: 1.6;
+    }
+
+    textarea::placeholder {
+      color: #82788f;
+    }
+
+    .composer-bottom {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 5px 3px 0;
+    }
+
+    .hint {
+      color: var(--muted);
+      font-size: 11px;
+    }
+
+    .send {
+      width: 42px;
+      height: 42px;
+      border: 0;
+      border-radius: 12px;
+      background: linear-gradient(135deg, #9333ea, #7c3aed);
+      color: white;
+      font-size: 21px;
+    }
+
+    .send:disabled {
+      opacity: .45;
+      cursor: not-allowed;
+    }
+
+    .disclaimer {
+      margin: 12px auto 0;
+      color: #82788f;
+      text-align: center;
+      font-size: 11px;
+      line-height: 1.6;
+    }
+
+    .error {
+      color: #fb7185;
+    }
+
+    @media (max-width: 700px) {
+      .sidebar {
+        display: none;
+      }
+
+      header {
+        min-height: 66px;
+        padding: 12px 15px;
+      }
+
+      .mobile-brand {
+        display: flex;
+      }
+
+      .header-info {
+        display: none;
+      }
+
+      .chat-area {
+        padding: 18px 15px;
+      }
+
+      .welcome {
+        margin: 35px 0;
+      }
+
+      .welcome-icon {
+        width: 65px;
+        height: 65px;
+      }
+
+      .suggestions {
+        grid-template-columns: 1fr;
+      }
+
+      .suggestion {
+        padding: 14px;
+      }
+
+      .composer-wrap {
+        padding: 10px 12px 14px;
+      }
+
+      .message {
+        gap: 9px;
+      }
+
+      .avatar {
+        width: 32px;
+        height: 32px;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: .01ms !important;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="app">
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="logo">O</div>
+        <div>
+          <div class="brand-name">Oxlan AI</div>
+          <div class="brand-subtitle">Your AI workspace</div>
+        </div>
+      </div>
+
+      <button class="new-chat" id="newChat">＋ New conversation</button>
+
+      <section>
+        <div class="section-title">Recent chats</div>
+        <div class="history" id="history"></div>
+      </section>
+
+      <div class="sidebar-footer">
+        <strong>✦ Oxlan AI</strong>
+        <p>Programming, learning, game development, writing, and creativity.</p>
+      </div>
+    </aside>
+
+    <main class="main">
+      <header>
+        <div class="mobile-brand">
+          <div class="logo">O</div>
+          <span>Oxlan AI</span>
+        </div>
+
+        <div class="header-info">
+          <div class="header-title">AI Assistant</div>
+          <div class="header-subtitle">Connected through your Vercel backend</div>
+        </div>
+
+        <div class="badge">✦ Groq API</div>
+      </header>
+
+      <section class="chat-area">
+        <div class="welcome" id="welcome">
+          <div class="welcome-icon">✦</div>
+          <h1>What's on your <span>mind?</span></h1>
+          <p>
+            Welcome to Oxlan AI. Ask a question, build a project,
+            debug code, or explore something new.
+          </p>
+
+          <div class="suggestions">
+            <button class="suggestion" data-prompt="Help me build a website using HTML, CSS, and JavaScript.">
+              <strong>💻 Build something</strong>
+              <span>Create a website or application from scratch.</span>
+            </button>
+
+            <button class="suggestion" data-prompt="Teach me a programming concept step by step.">
+              <strong>📚 Learn something</strong>
+              <span>Understand programming with clear explanations.</span>
+            </button>
+
+            <button class="suggestion" data-prompt="Help me debug my code and explain how to fix the problem.">
+              <strong>🛠️ Fix my code</strong>
+              <span>Investigate errors and find solutions.</span>
+            </button>
+
+            <button class="suggestion" data-prompt="Help me brainstorm an original game idea and plan its features.">
+              <strong>🎮 Create a game</strong>
+              <span>Brainstorm mechanics, features, and ideas.</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="messages" id="messages" aria-live="polite"></div>
+      </section>
+
+      <footer class="composer-wrap">
+        <form class="composer" id="chatForm">
+          <textarea
+            id="messageInput"
+            maxlength="12000"
+            rows="1"
+            placeholder="Message Oxlan AI..."
+            aria-label="Message Oxlan AI"
+            required
+          ></textarea>
+
+          <div class="composer-bottom">
+            <span class="hint">Enter to send · Shift + Enter for a new line</span>
+            <button class="send" id="sendButton" aria-label="Send message" type="submit">↑</button>
+          </div>
+        </form>
+
+        <div class="disclaimer">
+          AI can make mistakes. Verify important information and test generated code.
+        </div>
+      </footer>
+    </main>
+  </div>
+
+  <script>
+    "use strict";
+
+    const API_URL =
+      "https://oxlan-backend-9twiu9te3-elijahpauley186-3015s-projects.vercel.app/api/chat";
+
+    const STORAGE_KEY = "oxlan-ai-website-chats-v1";
+
+    const $ = selector => document.querySelector(selector);
+
+    const welcome = $("#welcome");
+    const messagesElement = $("#messages");
+    const input = $("#messageInput");
+    const form = $("#chatForm");
+    const sendButton = $("#sendButton");
+    const historyElement = $("#history");
+
+    let conversations = loadConversations();
+    let currentId = null;
+    let busy = false;
+
+    function newId() {
+      return crypto.randomUUID
+        ? crypto.randomUUID()
+        : Date.now().toString(36) + Math.random().toString(36).slice(2);
+    }
+
+    function loadConversations() {
+      try {
+        const data = JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
+        return Array.isArray(data) ? data.filter(
+          c => c && typeof c.id === "string" && Array.isArray(c.messages)
+        ) : [];
+      } catch {
+        return [];
+      }
+    }
+
+    function save() {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(conversations));
+      } catch (error) {
+        console.warn("Unable to save local conversation history.", error);
+      }
+    }
+
+    function currentConversation() {
+      return conversations.find(c => c.id === currentId);
+    }
+
+    function startConversation() {
+      const conversation = {
+        id: newId(),
+        title: "New conversation",
+        messages: [],
+        updatedAt: Date.now()
+      };
+
+      conversations.unshift(conversation);
+      currentId = conversation.id;
+      save();
+      renderAll();
+      input.focus();
+    }
+
+    function renderHistory() {
+      historyElement.replaceChildren();
+
+      [...conversations]
+        .sort((a, b) => b.updatedAt - a.updatedAt)
+        .slice(0, 30)
+        .forEach(conversation => {
+          const button = document.createElement("button");
+
+          button.type = "button";
+          button.textContent = "◷  " + (conversation.title || "New conversation");
+
+          if (conversation.id === currentId) button.classList.add("active");
+
+          button.addEventListener("click", () => {
+            if (busy) return;
+            currentId = conversation.id;
+            renderAll();
+          });
+
+          historyElement.appendChild(button);
+        });
+    }
+
+    function escapeHTML(text) {
+      return String(text).replace(/[&<>"']/g, char => ({
+        "&": "&amp;",
+        "<": "&lt;",
+        ">": "&gt;",
+        '"': "&quot;",
+        "'": "&#39;"
+      })[char]);
+    }
+
+    // Render common Markdown safely; do not interpret model output as HTML.
+    function markdown(source) {
+      const blocks = [];
+      let text = escapeHTML(source);
+
+      text = text.replace(/```([a-zA-Z0-9_-]*)\n?([\s\S]*?)```/g, (_, language, code) => {
+        const index = blocks.length;
+        blocks.push("<pre><code>" + code.replace(/\n$/, "") + "</code></pre>");
+        return "\u0000CODE" + index + "\u0000";
+      });
+
+      text = text.replace(/`([^`\n]+)`/g, "<code>$1</code>");
+      text = text.replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>");
+      text = text.replace(/\n/g, "<br>");
+
+      text = text.replace(/https:\/\/[^\s<]+/g, url =>
+        '<a href="' + url + '" target="_blank" rel="noopener noreferrer">' +
+        url + "</a>"
+      );
+
+      text = text.replace(/\u0000CODE(\d+)\u0000/g, (_, i) => blocks[Number(i)] || "");
+      return text;
+    }
+
+    function makeMessage(message) {
+      const wrapper = document.createElement("article");
+      wrapper.className = "message " + message.role;
+
+      const avatar = document.createElement("div");
+      avatar.className = "avatar";
+      avatar.textContent = message.role === "user" ? "Y" : "O";
+      avatar.setAttribute("aria-hidden", "true");
+
+      const body = document.createElement("div");
+      body.className = "message-body";
+
+      const name = document.createElement("div");
+      name.className = "message-name";
+      name.textContent = message.role === "user" ? "You" : "Oxlan AI";
+
+      const text = document.createElement("div");
+      text.className = "message-text";
+      text.innerHTML = markdown(message.content);
+
+      body.append(name, text);
+      wrapper.append(avatar, body);
+
+      return wrapper;
+    }
+
+    function renderAll() {
+      messagesElement.replaceChildren();
+
+      const conversation = currentConversation();
+      const hasMessages = Boolean(conversation?.messages.length);
+
+      welcome.hidden = hasMessages;
+
+      if (conversation) {
+        conversation.messages.forEach(message => {
+          messagesElement.appendChild(makeMessage(message));
+        });
+      }
+
+      renderHistory();
+      scrollBottom();
+    }
+
+    function showTyping() {
+      const wrapper = document.createElement("article");
+      wrapper.className = "message assistant";
+      wrapper.id = "typing";
+
+      const avatar = document.createElement("div");
+      avatar.className = "avatar";
+      avatar.textContent = "O";
+
+      const body = document.createElement("div");
+      body.className = "message-body";
+
+      const name = document.createElement("div");
+      name.className = "message-name";
+      name.textContent = "Oxlan AI";
+
+      const dots = document.createElement("div");
+      dots.className = "typing";
+      dots.setAttribute("aria-label", "Oxlan AI is responding");
+
+      for (let i = 0; i < 3; i++) dots.appendChild(document.createElement("span"));
+
+      body.append(name, dots);
+      wrapper.append(avatar, body);
+      messagesElement.appendChild(wrapper);
+      scrollBottom();
+    }
+
+    function scrollBottom() {
+      requestAnimationFrame(() => {
+        window.scrollTo({
+          top: document.documentElement.scrollHeight,
+          behavior: "smooth"
+        });
+      });
+    }
+
+    function setBusy(value) {
+      busy = value;
+      sendButton.disabled = value;
+      input.disabled = value;
+    }
+
+    async function sendMessage(rawText) {
+      const text = rawText.trim();
+
+      if (!text || busy) return;
+
+      if (!currentConversation()) startConversation();
+
+      const conversation = currentConversation();
+
+      conversation.messages.push({ role: "user", content: text });
+      conversation.updatedAt = Date.now();
+
+      if (conversation.title === "New conversation") {
+        conversation.title = text.replace(/\s+/g, " ").slice(0, 42);
+      }
+
+      save();
+      renderAll();
+      setBusy(true);
+      showTyping();
+
+      try {
+        // Only send chat messages. The API key stays on Vercel.
+        const response = await fetch(API_URL, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            messages: conversation.messages.map(message => ({
+              role: message.role,
+              content: message.content
+            }))
+          })
+        });
+
+        const data = await response.json().catch(() => ({}));
+
+        if (!response.ok) {
+          throw new Error(
+            data.error || "Backend returned HTTP " + response.status
+          );
+        }
+
+        const reply = typeof data.reply === "string"
+          ? data.reply
+          : typeof data.choices?.[0]?.message?.content === "string"
+            ? data.choices[0].message.content
+            : null;
+
+        if (!reply) {
+          throw new Error("The backend response did not contain a reply.");
+        }
+
+        conversation.messages.push({
+          role: "assistant",
+          content: reply
+        });
+
+        conversation.updatedAt = Date.now();
+        save();
+      } catch (error) {
+        console.error("Oxlan AI request failed:", error);
+
+        const explanation = error instanceof TypeError
+          ? "Could not connect to the backend. Check the Vercel deployment and its CORS settings."
+          : error.message || "An unexpected error occurred.";
+
+        conversation.messages.push({
+          role: "assistant",
+          content: "Sorry, I couldn't complete that request.\n\n" + explanation
+        });
+
+        conversation.updatedAt = Date.now();
+        save();
+      } finally {
+        $("#typing")?.remove();
+        setBusy(false);
+        renderAll();
+        input.focus();
+      }
+    }
+
+    form.addEventListener("submit", event => {
+      event.preventDefault();
+
+      const text = input.value;
+      if (!text.trim() || busy) return;
+
+      input.value = "";
+      input.style.height = "auto";
+
+      sendMessage(text);
+    });
+
+    input.addEventListener("input", () => {
+      input.style.height = "auto";
+      input.style.height = Math.min(input.scrollHeight, 180) + "px";
+    });
+
+    input.addEventListener("keydown", event => {
+      if (event.key === "Enter" && !event.shiftKey && !event.isComposing) {
+        event.preventDefault();
+        form.requestSubmit();
+      }
+    });
+
+    $("#newChat").addEventListener("click", () => {
+      if (!busy) startConversation();
+    });
+
+    document.querySelectorAll("[data-prompt]").forEach(button => {
+      button.addEventListener("click", () => {
+        if (busy) return;
+        input.value = button.dataset.prompt;
+        input.dispatchEvent(new Event("input"));
+        input.focus();
+      });
+    });
+
+    // Restore the last conversation when the page opens.
+    if (conversations.length) {
+      currentId = [...conversations].sort(
+        (a, b) => b.updatedAt - a.updatedAt
+      )[0].id;
+      renderAll();
+    } else {
+      renderHistory();
+    }
+  </script>
+</body>
+</html>
